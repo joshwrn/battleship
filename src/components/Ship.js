@@ -1,7 +1,7 @@
 import React from 'react';
 
-const Ship = () => {
-  return <div></div>;
+const Ship = ({ shipType, size }) => {
+  return { shipType: shipType, size: size };
 };
 
 export default Ship;

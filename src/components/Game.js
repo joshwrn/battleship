@@ -5,8 +5,8 @@ import '../styles/game.css';
 const Game = () => {
   return (
     <div id="game">
-      <Board />
-      <Board />
+      <Board player={'user'} />
+      <Board player={'comp'} />
     </div>
   );
 };
