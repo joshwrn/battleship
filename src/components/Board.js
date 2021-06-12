@@ -5,131 +5,106 @@ import Ship from './Ship';
 
 const Board = ({ player }) => {
   const [tiles, setTiles] = useState([]);
-  const [ships, setShips] = useState([]);
+  const [ships, setShips] = useState([
+    <Ship
+      shipType="Carrier"
+      size={[0, 1, 2, 3, 4]}
+      hits={0}
+      sunk={false}
+      key={`${player} Carrier`}
+    />,
+    <Ship
+      shipType="Battleship"
+      size={[0, 1, 2, 3]}
+      hits={0}
+      sunk={false}
+      key={`${player} Battleship`}
+    />,
+    <Ship
+      shipType="Cruiser"
+      size={[0, 1, 2]}
+      hits={0}
+      sunk={false}
+      key={`${player} Cruiser`}
+    />,
+    <Ship
+      shipType="Submarine"
+      size={[0, 1, 2]}
+      hits={0}
+      sunk={false}
+      key={`${player} Submarine`}
+    />,
+    <Ship
+      shipType="Destroyer"
+      size={[0, 1]}
+      hits={0}
+      sunk={false}
+      key={`${player} Destroyer`}
+    />,
+  ]); //ships are just objects... also maybe put objects directly into array
   const newTiles = [];
-  const newShips = [];
-  const available = [];
-
-  const testShips = newShips.some((position) => {
-    if (position === newShips[0].props.position) {
-      return true;
-    } else {
-      return false;
-    }
-  });
 
   //random int
-  const getRandomInt = (max) => {
+  const randomNum = (max) => {
     return Math.floor(Math.random() * max);
   };
 
-  // create available tiles
-  const createAvailable = () => {
-    for (let i = 0; i < 100; i++) {
-      available.push(i);
-    }
-  };
-
-  //check if int matches
-  const checkSome = () => {
-    available.some((num) => {});
-  };
-
-  const createPosition = (size) => {
-    let arr = [];
-    const start = available[getRandomInt(available.length)];
-    let startString = start.toString();
-    const testStart = () => {
-      if (startString.length !== 1) {
-        startString = Number(startString.substring(1));
-        if (startString + size > 9) {
-          return false;
-        } else {
-          return true;
-        }
-      } else if (Number(startString) + size > 9) {
-        return false;
-      } else {
-        return true;
-      }
-    };
-
-    if (testStart()) {
-      for (let i = start; i < start + size; i++) {
-        arr.push(i);
-      }
-    } else {
-      for (let i = start - size; i < start - size + size; i++) {
-        arr.push(i);
-      }
-    }
-    available.splice(start - 1, size);
-    return arr;
-  };
-
+  //+ create tiles
   const createTiles = () => {
     for (let i = 0; i < 100; i++) {
-      newTiles.push(
-        <Tile key={i + player} id={i + player} newShips={newShips} />
-      );
+      newTiles.push({
+        key: i + player,
+        id: i + player,
+        taken: false,
+      });
     }
-  };
-
-  const createShips = () => {
-    newShips.push(
-      <Ship
-        shipType="Carrier"
-        size={5}
-        hits={0}
-        sunk={false}
-        position={createPosition(5)} // get random tile from array instead
-      />,
-      <Ship
-        shipType="Battleship"
-        size={4}
-        hits={0}
-        sunk={false}
-        position={createPosition(4)} // get random tile from array instead
-      />,
-      <Ship
-        shipType="Cruiser"
-        size={3}
-        hits={0}
-        sunk={false}
-        position={createPosition(3)} // get random tile from array instead
-      />,
-      <Ship
-        shipType="Submarine"
-        size={3}
-        hits={0}
-        sunk={false}
-        position={createPosition(3)} // get random tile from array instead
-      />,
-      <Ship
-        shipType="Destroyer"
-        size={2}
-        hits={0}
-        sunk={false}
-        position={createPosition(2)} // get random tile from array instead
-      />
-    );
   };
 
   useEffect(() => {
     //@ create tiles then set array as state
-    createAvailable();
-    createShips();
+    console.log(player);
+
     createTiles();
     setTiles(newTiles);
-    setShips(newShips);
-    console.log(newShips);
-    console.log(player);
-    console.log(available);
+
+    console.log(ships);
   }, []);
 
+  const checkTiles = (arr, start) => {
+    arr.props.size.some((index) => {
+      // some returns FIRST item it finds
+      if (
+        document
+          .getElementById(`${start + index}${player}`)
+          .getAttribute('data-taken') === 'true'
+      ) {
+        console.log('found: ' + (index + start));
+        console.log('index: ' + index);
+        console.log(document.getElementById(`${start + index}${player}`));
+        console.log(true);
+        return true;
+      }
+    });
+  };
+
+  const createPosition = () => {
+    const start = randomNum(tiles.length - ships[4].props.size.length);
+    console.log('start: ' + start);
+    checkTiles(ships[4], start);
+  };
+
+  const markTaken = () => {
+    console.log(tiles[20].taken);
+    setTiles((old) => [...old], {
+      [tiles[20]]: (tiles[20].taken = true),
+    });
+  };
+  // map tiles from array of objects instead
   return (
-    <div id={player} className="board">
-      {tiles}
+    <div onClick={createPosition} id={player} className="board">
+      {tiles.map((item) => {
+        return <Tile key={item.key} id={item.id} taken={item.taken} />;
+      })}
     </div>
   );
 };
