@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Tile from './Tile';
 import '../styles/board.css';
-import Ship from './Ship';
 
 const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
   const [tiles, setTiles] = useState([]);
+  const [lastHit, setLastHit] = useState(-100);
+  const [firstHit, setFirstHit] = useState('');
+  const [restart, setRestart] = useState('');
+  const [rotate, setRotate] = useState([0, 3]);
+  const [sunk, setSunk] = useState([]);
   const [ships, setShips] = useState([
     {
       shipType: 'Carrier',
@@ -52,6 +56,11 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
   //+ random int
   const randomNum = (max) => {
     return Math.floor(Math.random() * max);
+  };
+
+  //+ random from range
+  const randomNumRange = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
   };
 
   //+ create tiles
@@ -146,6 +155,21 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
     setTiles(newTiles);
   }, []);
 
+  //+ update ship stats
+  const updateHits = (type) => {
+    if (type !== 'tile') {
+      const findShip = ships.findIndex((ship) => ship.shipType === type);
+      setShips((old) => [...old], {
+        [ships[findShip]]: (ships[findShip].hits = ships[findShip].hits + 1),
+      });
+      if (ships[findShip].hits === ships[findShip].sizeHor.length) {
+        setShips((old) => [...old], {
+          [ships[findShip]]: (ships[findShip].sunk = true),
+        });
+      }
+    }
+  };
+
   //# on click function
   const handleClick = (e) => {
     e.preventDefault();
@@ -161,52 +185,113 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
       setTiles((old) => [...old], {
         [tiles[tilePos]]: (tiles[tilePos].hit = true),
       });
-
-      if (tileType !== 'tile') {
-        const findShip = ships.findIndex((ship) => ship.shipType === tileType);
-        setShips((old) => [...old], {
-          [ships[findShip]]: (ships[findShip].hits = ships[findShip].hits + 1),
-        });
-        if (ships[findShip].hits === ships[findShip].sizeHor.length) {
-          setShips((old) => [...old], {
-            [ships[findShip]]: (ships[findShip].sunk = true),
-          });
-        }
-      }
+      updateHits(tileType);
       setTurn((prev) => prev + 1);
     }
   };
 
-  //+ set sunk list and game over
-  useEffect(() => {
-    const filtered = ships.filter((ship) => ship.hits === ship.sizeHor.length);
-    if (filtered.length === 5) {
-      setGameStatus('over');
-    }
-  }, [ships]);
-
-  //+ make comp move
-  // set last hit in state
-  // add 1 -1 10 -10
-  // set ship to sunk btw
-
-  const makeCompMove = () => {
-    if (player === 'user' && turn > 0) {
-      const random = randomNum(100);
-      if (tiles[random].hit === false) {
-        setTiles((old) => [...old], {
-          [tiles[random]]: (tiles[random].hit = true),
-        });
-      } else {
-        makeCompMove();
+  //+ check all
+  const checkAll = (newArr, lastHit) => {
+    for (let i = 0; i < newArr.length; i++) {
+      if (newArr[i] + lastHit < 0 || newArr[i] + lastHit > 99) {
+        newArr.splice(i, 1);
       }
     }
   };
+
+  //# make comp move
+  const makeCompMove = () => {
+    if (player === 'user' && turn > 0) {
+      if (lastHit === -100) {
+        console.log('first');
+        const random = randomNum(100);
+        if (tiles[random].hit === false) {
+          setTiles((old) => [...old], {
+            [tiles[random]]: (tiles[random].hit = true),
+          });
+          updateHits(tiles[random].type);
+          if (tiles[random].type !== 'tile') {
+            setLastHit(random);
+            setFirstHit(random);
+          }
+        } else {
+          makeCompMove();
+        }
+      } else {
+        let pos = [-1, 1, -10, 10];
+
+        checkAll(pos, lastHit);
+
+        const getPos = pos[randomNumRange(rotate[0], rotate[1])];
+
+        const prediction = lastHit + getPos;
+
+        const newArr = pos.slice(rotate[0], rotate[1] + 1);
+
+        const check = newArr.every(
+          (item) => tiles[lastHit + item].hit === true
+        );
+
+        if (tiles[prediction].hit === false) {
+          console.log('2nd 1');
+          setTiles((old) => [...old], {
+            [tiles[prediction]]: (tiles[prediction].hit = true),
+          });
+          updateHits(tiles[prediction].type);
+          if (tiles[prediction].type !== 'tile') {
+            setLastHit(prediction);
+            if (getPos === -10 || getPos === 10) {
+              setRotate([2, 3]);
+            } else {
+              setRotate([0, 1]);
+            }
+          }
+        } else if (check === false) {
+          console.log('2nd 2');
+          makeCompMove();
+        } else {
+          console.log('2nd 3');
+          console.log(rotate);
+          console.log(lastHit);
+          setRotate([0, 3]);
+          setLastHit(firstHit);
+          setRestart('restart');
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    makeCompMove();
+  }, [restart]);
+
+  useEffect(() => {
+    setLastHit(-100);
+    console.log('sunk'); //updates every ship it after first sunk
+    setRotate([0, 3]);
+  }, [sunk]);
 
   //+ on turn update move
   useEffect(() => {
     makeCompMove();
   }, [turn]);
+
+  //+ set sunk list and game over
+  useEffect(() => {
+    const filtered = ships.filter((ship) => ship.hits === ship.sizeHor.length);
+    let winner;
+    if (player === 'comp') {
+      winner = 'Player';
+    } else {
+      winner = 'Computer';
+    }
+    if (filtered.length === 5) {
+      setGameStatus(`Game Over ${winner} Wins`);
+    }
+    if (filtered.length > sunk.length) {
+      setSunk(filtered);
+    }
+  }, [ships]);
 
   return (
     <div>

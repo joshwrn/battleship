@@ -24,7 +24,7 @@ const Game = () => {
         />
       </div>
       <p id="game-over">
-        {gameStatus === 'over' ? 'Game Over' : 'Turn: ' + turn}
+        {gameStatus !== 'playing' ? gameStatus : 'Turn: ' + turn}
       </p>
     </div>
   );
