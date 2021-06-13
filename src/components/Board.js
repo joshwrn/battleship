@@ -199,6 +199,14 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
     }
   };
 
+  const checkPrediction = (num) => {
+    if (num < 0 || num > 99) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   //# make comp move
   const makeCompMove = () => {
     if (player === 'user' && turn > 0) {
@@ -220,42 +228,62 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
       } else {
         let pos = [-1, 1, -10, 10];
 
-        checkAll(pos, lastHit);
-
         const getPos = pos[randomNumRange(rotate[0], rotate[1])];
 
         const prediction = lastHit + getPos;
 
         const newArr = pos.slice(rotate[0], rotate[1] + 1);
 
-        const check = newArr.every(
-          (item) => tiles[lastHit + item].hit === true
-        );
-
-        if (tiles[prediction].hit === false) {
-          console.log('2nd 1');
-          setTiles((old) => [...old], {
-            [tiles[prediction]]: (tiles[prediction].hit = true),
-          });
-          updateHits(tiles[prediction].type);
-          if (tiles[prediction].type !== 'tile') {
-            setLastHit(prediction);
-            if (getPos === -10 || getPos === 10) {
-              setRotate([2, 3]);
+        const check = (arr, curHit) =>
+          arr.every((item) => {
+            if (checkPrediction(item + curHit) === false) {
+              if (tiles[curHit + item].hit === true) {
+                return true;
+              }
             } else {
-              setRotate([0, 1]);
+              return true;
             }
+          });
+
+        console.log(prediction);
+        console.log(checkPrediction(prediction));
+        if (checkPrediction(prediction) === false) {
+          if (tiles[prediction].hit === false) {
+            console.log('2nd 1');
+            setTiles((old) => [...old], {
+              [tiles[prediction]]: (tiles[prediction].hit = true),
+            });
+            updateHits(tiles[prediction].type);
+            if (tiles[prediction].type !== 'tile') {
+              setLastHit(prediction);
+              if (getPos === -10 || getPos === 10) {
+                setRotate([2, 3]);
+              } else {
+                setRotate([0, 1]);
+              }
+            }
+          } else if (check(newArr, lastHit) === false) {
+            console.log('2nd 2');
+            makeCompMove();
+          } else if (check(newArr, firstHit) === false) {
+            // check first hit
+            console.log('2nd 3');
+            console.log(rotate);
+            console.log(lastHit);
+            setRotate([0, 3]);
+            setLastHit(firstHit);
+            setRestart('restart');
+          } else {
+            setRotate([0, 3]);
+            setLastHit(firstHit);
+            setRestart('restart');
           }
-        } else if (check === false) {
-          console.log('2nd 2');
-          makeCompMove();
-        } else {
-          console.log('2nd 3');
-          console.log(rotate);
-          console.log(lastHit);
+        } else if (check(newArr, lastHit) === true) {
           setRotate([0, 3]);
           setLastHit(firstHit);
           setRestart('restart');
+        } else {
+          makeCompMove();
         }
       }
     }
