@@ -3,7 +3,7 @@ import Tile from './Tile';
 import '../styles/board.css';
 import Ship from './Ship';
 
-const Board = ({ player, gameStatus, setGameStatus }) => {
+const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
   const [tiles, setTiles] = useState([]);
   const [ships, setShips] = useState([
     {
@@ -149,16 +149,19 @@ const Board = ({ player, gameStatus, setGameStatus }) => {
   //# on click function
   const handleClick = (e) => {
     e.preventDefault();
-    if (gameStatus === 'playing') {
-      const { id } = e.target;
-      const hitValue = e.target.getAttribute('data-hit');
-      const tileType = e.target.getAttribute('data-type');
-      if (hitValue === 'false' && id.includes('comp')) {
-        const tilePos = Number(id.slice(0, -4));
-        setTiles((old) => [...old], {
-          [tiles[tilePos]]: (tiles[tilePos].hit = true),
-        });
-      }
+    const { id } = e.target;
+    const hitValue = e.target.getAttribute('data-hit');
+    const tileType = e.target.getAttribute('data-type');
+    if (
+      gameStatus === 'playing' &&
+      hitValue === 'false' &&
+      id.includes('comp')
+    ) {
+      const tilePos = Number(id.slice(0, -4));
+      setTiles((old) => [...old], {
+        [tiles[tilePos]]: (tiles[tilePos].hit = true),
+      });
+
       if (tileType !== 'tile') {
         const findShip = ships.findIndex((ship) => ship.shipType === tileType);
         setShips((old) => [...old], {
@@ -169,18 +172,41 @@ const Board = ({ player, gameStatus, setGameStatus }) => {
             [ships[findShip]]: (ships[findShip].sunk = true),
           });
         }
-        console.log(ships[findShip]);
       }
+      setTurn((prev) => prev + 1);
     }
   };
 
+  //+ set sunk list and game over
   useEffect(() => {
     const filtered = ships.filter((ship) => ship.hits === ship.sizeHor.length);
     if (filtered.length === 5) {
       setGameStatus('over');
     }
-    console.log(filtered);
   }, [ships]);
+
+  //+ make comp move
+  // set last hit in state
+  // add 1 -1 10 -10
+  // set ship to sunk btw
+
+  const makeCompMove = () => {
+    if (player === 'user' && turn > 0) {
+      const random = randomNum(100);
+      if (tiles[random].hit === false) {
+        setTiles((old) => [...old], {
+          [tiles[random]]: (tiles[random].hit = true),
+        });
+      } else {
+        makeCompMove();
+      }
+    }
+  };
+
+  //+ on turn update move
+  useEffect(() => {
+    makeCompMove();
+  }, [turn]);
 
   return (
     <div>

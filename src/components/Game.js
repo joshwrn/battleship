@@ -4,6 +4,7 @@ import '../styles/game.css';
 
 const Game = () => {
   const [gameStatus, setGameStatus] = useState('playing');
+  const [turn, setTurn] = useState(0);
   return (
     <div id="game-container">
       <div id="game">
@@ -11,14 +12,20 @@ const Game = () => {
           player={'user'}
           gameStatus={gameStatus}
           setGameStatus={setGameStatus}
+          turn={turn}
+          setTurn={setTurn}
         />
         <Board
           player={'comp'}
           gameStatus={gameStatus}
           setGameStatus={setGameStatus}
+          turn={turn}
+          setTurn={setTurn}
         />
       </div>
-      <p id="game-over">{gameStatus === 'over' ? 'Game Over' : 'Playing'}</p>
+      <p id="game-over">
+        {gameStatus === 'over' ? 'Game Over' : 'Turn: ' + turn}
+      </p>
     </div>
   );
 };
