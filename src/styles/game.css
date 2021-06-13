@@ -1,4 +1,21 @@
+#game-container {
+  display: grid;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
 #game {
   display: grid;
   grid-template-columns: 1fr 1fr;
+}
+
+#game-over {
+  font-size: 2em;
 }

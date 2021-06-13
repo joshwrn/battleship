@@ -3,50 +3,50 @@ import Tile from './Tile';
 import '../styles/board.css';
 import Ship from './Ship';
 
-const Board = ({ player }) => {
+const Board = ({ player, gameStatus, setGameStatus }) => {
   const [tiles, setTiles] = useState([]);
   const [ships, setShips] = useState([
-    <Ship
-      shipType="Carrier"
-      sizeHor={[0, 1, 2, 3, 4]}
-      sizeVer={[0, 10, 20, 30, 40]}
-      hits={0}
-      sunk={false}
-      key={`${player} Carrier`}
-    />,
-    <Ship
-      shipType="Battleship"
-      sizeHor={[0, 1, 2, 3]}
-      sizeVer={[0, 10, 20, 30]}
-      hits={0}
-      sunk={false}
-      key={`${player} Battleship`}
-    />,
-    <Ship
-      shipType="Cruiser"
-      sizeHor={[0, 1, 2]}
-      sizeVer={[0, 10, 20]}
-      hits={0}
-      sunk={false}
-      key={`${player} Cruiser`}
-    />,
-    <Ship
-      shipType="Submarine"
-      sizeHor={[0, 1, 2]}
-      sizeVer={[0, 10, 20]}
-      hits={0}
-      sunk={false}
-      key={`${player} Submarine`}
-    />,
-    <Ship
-      shipType="Destroyer"
-      sizeHor={[0, 1]}
-      sizeVer={[0, 10]}
-      hits={0}
-      sunk={false}
-      key={`${player} Destroyer`}
-    />,
-  ]); //ships are just objects... also maybe put objects directly into array
+    {
+      shipType: 'Carrier',
+      sizeHor: [0, 1, 2, 3, 4],
+      sizeVer: [0, 10, 20, 30, 40],
+      hits: 0,
+      sunk: false,
+      key: `${player} Carrier`,
+    },
+    {
+      shipType: 'Battleship',
+      sizeHor: [0, 1, 2, 3],
+      sizeVer: [0, 10, 20, 30],
+      hits: 0,
+      sunk: false,
+      key: `${player} Battleship`,
+    },
+    {
+      shipType: 'Cruiser',
+      sizeHor: [0, 1, 2],
+      sizeVer: [0, 10, 20],
+      hits: 0,
+      sunk: false,
+      key: `${player} Cruiser`,
+    },
+    {
+      shipType: 'Submarine',
+      sizeHor: [0, 1, 2],
+      sizeVer: [0, 10, 20],
+      hits: 0,
+      sunk: false,
+      key: `${player} Submarine`,
+    },
+    {
+      shipType: 'Destroyer',
+      sizeHor: [0, 1],
+      sizeVer: [0, 10],
+      hits: 0,
+      sunk: false,
+      key: `${player} Destroyer`,
+    },
+  ]);
   const newTiles = [];
 
   //+ random int
@@ -106,9 +106,9 @@ const Board = ({ player }) => {
   //+ decide direction
   const chooseDirection = (i) => {
     if (randomNum(2) === 1) {
-      return ships[i].props.sizeHor;
+      return ships[i].sizeHor;
     } else {
-      return ships[i].props.sizeVer;
+      return ships[i].sizeVer;
     }
   };
 
@@ -116,11 +116,11 @@ const Board = ({ player }) => {
   const createShip = (i) => {
     const directions = chooseDirection(i);
     let width = 1;
-    if (directions === ships[i].props.sizeVer) {
+    if (directions === ships[i].sizeVer) {
       width = 10;
     }
     const start = randomNum(newTiles.length - directions.length * width);
-    const type = ships[i].props.shipType;
+    const type = ships[i].shipType;
     if (checkPosition(start, directions) !== true) {
       directions.map((position) => {
         newTiles[start + position].taken = true;
@@ -149,30 +149,67 @@ const Board = ({ player }) => {
   //# on click function
   const handleClick = (e) => {
     e.preventDefault();
-    const { id } = e.target;
-    const hitValue = e.target.getAttribute('data-hit');
-    if (hitValue === 'false' && id.includes('comp')) {
-      const tilePos = Number(id.slice(0, -4));
-      setTiles((old) => [...old], {
-        [tiles[tilePos]]: (tiles[tilePos].hit = true),
-      });
+    if (gameStatus === 'playing') {
+      const { id } = e.target;
+      const hitValue = e.target.getAttribute('data-hit');
+      const tileType = e.target.getAttribute('data-type');
+      if (hitValue === 'false' && id.includes('comp')) {
+        const tilePos = Number(id.slice(0, -4));
+        setTiles((old) => [...old], {
+          [tiles[tilePos]]: (tiles[tilePos].hit = true),
+        });
+      }
+      if (tileType !== 'tile') {
+        const findShip = ships.findIndex((ship) => ship.shipType === tileType);
+        setShips((old) => [...old], {
+          [ships[findShip]]: (ships[findShip].hits = ships[findShip].hits + 1),
+        });
+        if (ships[findShip].hits === ships[findShip].sizeHor.length) {
+          setShips((old) => [...old], {
+            [ships[findShip]]: (ships[findShip].sunk = true),
+          });
+        }
+        console.log(ships[findShip]);
+      }
     }
   };
 
+  useEffect(() => {
+    const filtered = ships.filter((ship) => ship.hits === ship.sizeHor.length);
+    if (filtered.length === 5) {
+      setGameStatus('over');
+    }
+    console.log(filtered);
+  }, [ships]);
+
   return (
-    <div id={player} className="board">
-      {tiles.map((item) => {
-        return (
-          <Tile
-            key={item.key}
-            id={item.id}
-            taken={item.taken}
-            type={item.type}
-            hit={item.hit}
-            click={handleClick}
-          />
-        );
-      })}
+    <div>
+      <div id={player} className="board">
+        {tiles.map((item) => {
+          return (
+            <Tile
+              key={item.key}
+              id={item.id}
+              taken={item.taken}
+              type={item.type}
+              hit={item.hit}
+              click={handleClick}
+            />
+          );
+        })}
+      </div>
+      <div className="sunk-list">
+        <p className="sunk-text">Sunk:</p>
+        {ships.map((item) => {
+          if (item.sunk) {
+            return (
+              <p className="sunk-text" key={`${item.shipType} ${player}`}>
+                {item.shipType + ','}
+              </p>
+            );
+          }
+        })}
+      </div>
     </div>
   );
 };
