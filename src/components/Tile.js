@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/tile.css';
 
-const Tile = ({ id, taken, type, click, hit }) => {
+const Tile = ({ id, taken, type, click, hit, number }) => {
   //pass down state and arrays
   //add taken attribute
   const check = taken === true;
@@ -12,8 +12,10 @@ const Tile = ({ id, taken, type, click, hit }) => {
       return 'miss';
     } else if (id.includes('comp')) {
       return 'tile';
-    } else if (hit === false) {
-      return type.toLowerCase();
+    } else if (hit === false && type !== 'tile') {
+      return 'ship';
+    } else {
+      return 'tile';
     }
   };
 

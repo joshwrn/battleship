@@ -7,6 +7,7 @@ const Game = () => {
   const [turn, setTurn] = useState(0);
   return (
     <div id="game-container">
+      <p id="game-over">React Battleship</p>
       <div id="game">
         <Board
           player={'user'}

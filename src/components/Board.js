@@ -72,6 +72,7 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
         taken: false,
         type: 'tile',
         hit: false,
+        number: i,
       });
     }
   };
@@ -190,15 +191,6 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
     }
   };
 
-  //+ check all
-  const checkAll = (newArr, lastHit) => {
-    for (let i = 0; i < newArr.length; i++) {
-      if (newArr[i] + lastHit < 0 || newArr[i] + lastHit > 99) {
-        newArr.splice(i, 1);
-      }
-    }
-  };
-
   const checkPrediction = (num) => {
     if (num < 0 || num > 99) {
       return true;
@@ -245,6 +237,14 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
             }
           });
 
+        const doubleCheck = (arr, curHit) => {
+          arr.every((item) => {
+            if (tiles[curHit + item].hit === true) {
+              return true;
+            }
+          });
+        };
+
         console.log(prediction);
         console.log(checkPrediction(prediction));
         if (checkPrediction(prediction) === false) {
@@ -274,15 +274,22 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
             setLastHit(firstHit);
             setRestart('restart');
           } else {
+            console.log('2nd 4');
             setRotate([0, 3]);
-            setLastHit(firstHit);
+            if (doubleCheck(newArr, firstHit) === false) {
+              setLastHit(firstHit);
+            } else {
+              setLastHit(-100);
+            }
             setRestart('restart');
           }
         } else if (check(newArr, lastHit) === true) {
+          console.log('3rd 1');
           setRotate([0, 3]);
           setLastHit(firstHit);
           setRestart('restart');
         } else {
+          console.log('3rd 2');
           makeCompMove();
         }
       }

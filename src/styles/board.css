@@ -7,6 +7,7 @@
   height: 30em;
   border: 1px solid white;
   margin: 2em;
+  backdrop-filter: blur(10px);
 }
 
 .sunk-list {
