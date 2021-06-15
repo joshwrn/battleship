@@ -3,6 +3,8 @@ import Tile from './Tile';
 import '../styles/board.css';
 import randomNum from './functions/randomNum';
 import randomNumRange from './functions/randomNumRange';
+import checkPrediction from './functions/checkPrediction';
+import shipList from './functions/shipList';
 import { createAllShips } from './functions/createAllShips.js';
 
 const Board = ({
@@ -19,48 +21,7 @@ const Board = ({
   const [firstHit, setFirstHit] = useState('');
   const [rotate, setRotate] = useState([0, 3]);
   const [sunk, setSunk] = useState([]);
-  const [ships, setShips] = useState([
-    {
-      shipType: 'Carrier',
-      sizeHor: [0, 1, 2, 3, 4],
-      sizeVer: [0, 10, 20, 30, 40],
-      hits: 0,
-      sunk: false,
-      key: `${player} Carrier`,
-    },
-    {
-      shipType: 'Battleship',
-      sizeHor: [0, 1, 2, 3],
-      sizeVer: [0, 10, 20, 30],
-      hits: 0,
-      sunk: false,
-      key: `${player} Battleship`,
-    },
-    {
-      shipType: 'Cruiser',
-      sizeHor: [0, 1, 2],
-      sizeVer: [0, 10, 20],
-      hits: 0,
-      sunk: false,
-      key: `${player} Cruiser`,
-    },
-    {
-      shipType: 'Submarine',
-      sizeHor: [0, 1, 2],
-      sizeVer: [0, 10, 20],
-      hits: 0,
-      sunk: false,
-      key: `${player} Submarine`,
-    },
-    {
-      shipType: 'Destroyer',
-      sizeHor: [0, 1],
-      sizeVer: [0, 10],
-      hits: 0,
-      sunk: false,
-      key: `${player} Destroyer`,
-    },
-  ]);
+  const [ships, setShips] = useState(shipList(player));
   const newTiles = [];
 
   //+ create tiles
@@ -120,11 +81,21 @@ const Board = ({
     }
   };
 
-  const checkPrediction = (num) => {
-    if (num < 0 || num > 99) {
-      return true;
+  //+ make random move
+  const randomMove = () => {
+    console.log('first');
+    const random = randomNum(99);
+    if (tiles[random].hit === false) {
+      setTiles((old) => [...old], {
+        [tiles[random]]: (tiles[random].hit = true),
+      });
+      updateHits(tiles[random].type);
+      if (tiles[random].type !== 'tile') {
+        setLastHit(random);
+        setFirstHit(random);
+      }
     } else {
-      return false;
+      makeCompMove();
     }
   };
 
@@ -133,27 +104,11 @@ const Board = ({
     console.log('comp move');
     if (player === 'user' && turn > 0) {
       if (lastHit === -100) {
-        console.log('first');
-        const random = randomNum(99);
-        if (tiles[random].hit === false) {
-          setTiles((old) => [...old], {
-            [tiles[random]]: (tiles[random].hit = true),
-          });
-          updateHits(tiles[random].type);
-          if (tiles[random].type !== 'tile') {
-            setLastHit(random);
-            setFirstHit(random);
-          }
-        } else {
-          makeCompMove();
-        }
+        randomMove();
       } else {
         let pos = [-1, 1, -10, 10];
-
         const getPos = pos[randomNumRange(rotate[0], rotate[1])];
-
         const prediction = lastHit + getPos;
-
         const newArr = pos.slice(rotate[0], rotate[1] + 1);
 
         const check = (arr, curHit) =>
@@ -223,23 +178,20 @@ const Board = ({
     }
   };
 
-  useEffect(() => {
-    console.log('restart');
-    makeCompMove();
-  }, [restart]);
-
+  //+ reset last hit and rotation on ship sunk
   useEffect(() => {
     setLastHit(-100);
     setRotate([0, 3]);
   }, [sunk]);
 
-  //+ on turn update move
+  //+ on turn or restart update move
   useEffect(() => {
     makeCompMove();
-  }, [turn]);
+    console.log(shipList('user')[0]);
+  }, [turn, restart]);
 
-  //+ set sunk list and game over
-  useEffect(() => {
+  //+ set sunk list function and game over
+  const addToSunk = () => {
     const filtered = ships.filter((ship) => ship.hits === ship.sizeHor.length);
     let winner;
     if (player === 'comp') {
@@ -253,6 +205,11 @@ const Board = ({
     if (filtered.length > sunk.length) {
       setSunk(filtered);
     }
+  };
+
+  //+ add to sunk on ship update
+  useEffect(() => {
+    addToSunk();
   }, [ships]);
 
   return (
