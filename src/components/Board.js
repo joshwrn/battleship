@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import Tile from './Tile';
 import '../styles/board.css';
+import randomNum from './functions/randomNum';
+import randomNumRange from './functions/randomNumRange';
+import { createAllShips } from './functions/createAllShips.js';
 
-const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
+const Board = ({
+  player,
+  gameStatus,
+  setGameStatus,
+  turn,
+  setTurn,
+  restart,
+  setRestart,
+}) => {
   const [tiles, setTiles] = useState([]);
   const [lastHit, setLastHit] = useState(-100);
   const [firstHit, setFirstHit] = useState('');
-  const [restart, setRestart] = useState('');
   const [rotate, setRotate] = useState([0, 3]);
   const [sunk, setSunk] = useState([]);
   const [ships, setShips] = useState([
@@ -53,16 +63,6 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
   ]);
   const newTiles = [];
 
-  //+ random int
-  const randomNum = (max) => {
-    return Math.floor(Math.random() * max);
-  };
-
-  //+ random from range
-  const randomNumRange = (min, max) => {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  };
-
   //+ create tiles
   const createTiles = () => {
     for (let i = 0; i < 100; i++) {
@@ -77,82 +77,11 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
     }
   };
 
-  //+ Check for other ships
-  const checkTaken = (directions, start) => {
-    if (
-      directions.some((index) => {
-        if (newTiles[start + index].taken === true) {
-          return true;
-        }
-      })
-    ) {
-      return true;
-    }
-  };
-
-  //+ Check for edge
-  const checkEdge = (directions, start) => {
-    if (
-      directions.some((index) => {
-        if (start % 10 !== 0 && (start + index) % 10 === 0) {
-          return true;
-        }
-      })
-    ) {
-      return true;
-    }
-  };
-
-  //+ check for edge and other ships
-  const checkPosition = (start, directions) => {
-    if (
-      checkEdge(directions, start) === true ||
-      checkTaken(directions, start) === true
-    ) {
-      return true;
-    }
-  };
-
-  //+ decide direction
-  const chooseDirection = (i) => {
-    if (randomNum(2) === 1) {
-      return ships[i].sizeHor;
-    } else {
-      return ships[i].sizeVer;
-    }
-  };
-
-  //+ create a ship
-  const createShip = (i) => {
-    const directions = chooseDirection(i);
-    let width = 1;
-    if (directions === ships[i].sizeVer) {
-      width = 10;
-    }
-    const start = randomNum(newTiles.length - directions.length * width);
-    const type = ships[i].shipType;
-    if (checkPosition(start, directions) !== true) {
-      directions.map((position) => {
-        newTiles[start + position].taken = true;
-        newTiles[start + position].type = type;
-      });
-    } else {
-      createShip(i);
-    }
-  };
-
-  //+ loop and create all ships
-  const createAllShips = () => {
-    for (let i = 0; i < 5; i++) {
-      createShip(i);
-    }
-  };
-
   //+ create tiles and ships on load
   useEffect(() => {
     // create tiles then set array as state
     createTiles();
-    createAllShips();
+    createAllShips(newTiles, ships);
     setTiles(newTiles);
   }, []);
 
@@ -201,10 +130,11 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
 
   //# make comp move
   const makeCompMove = () => {
+    console.log('comp move');
     if (player === 'user' && turn > 0) {
       if (lastHit === -100) {
         console.log('first');
-        const random = randomNum(100);
+        const random = randomNum(99);
         if (tiles[random].hit === false) {
           setTiles((old) => [...old], {
             [tiles[random]]: (tiles[random].hit = true),
@@ -268,11 +198,8 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
           } else if (check(newArr, firstHit) === false) {
             // check first hit
             console.log('2nd 3');
-            console.log(rotate);
-            console.log(lastHit);
-            setRotate([0, 3]);
             setLastHit(firstHit);
-            setRestart('restart');
+            setRestart('restart' + turn);
           } else {
             console.log('2nd 4');
             setRotate([0, 3]);
@@ -281,13 +208,13 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
             } else {
               setLastHit(-100);
             }
-            setRestart('restart');
+            setRestart('restart' + turn);
           }
         } else if (check(newArr, lastHit) === true) {
           console.log('3rd 1');
           setRotate([0, 3]);
           setLastHit(firstHit);
-          setRestart('restart');
+          setRestart('restart' + turn);
         } else {
           console.log('3rd 2');
           makeCompMove();
@@ -297,12 +224,12 @@ const Board = ({ player, gameStatus, setGameStatus, turn, setTurn }) => {
   };
 
   useEffect(() => {
+    console.log('restart');
     makeCompMove();
   }, [restart]);
 
   useEffect(() => {
     setLastHit(-100);
-    console.log('sunk'); //updates every ship it after first sunk
     setRotate([0, 3]);
   }, [sunk]);
 

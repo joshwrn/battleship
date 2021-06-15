@@ -24,6 +24,7 @@ const Tile = ({ id, taken, type, click, hit, number }) => {
       id={id}
       data-taken={check ? true : false}
       data-hit={hit}
+      data-testid={'tile'}
       data-type={type}
       className={setTileClass()}
       onClick={click}

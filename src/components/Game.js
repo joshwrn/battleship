@@ -4,6 +4,7 @@ import '../styles/game.css';
 
 const Game = () => {
   const [gameStatus, setGameStatus] = useState('playing');
+  const [restart, setRestart] = useState('');
   const [turn, setTurn] = useState(0);
   return (
     <div id="game-container">
@@ -15,6 +16,8 @@ const Game = () => {
           setGameStatus={setGameStatus}
           turn={turn}
           setTurn={setTurn}
+          restart={restart}
+          setRestart={setRestart}
         />
         <Board
           player={'comp'}
@@ -22,6 +25,8 @@ const Game = () => {
           setGameStatus={setGameStatus}
           turn={turn}
           setTurn={setTurn}
+          restart={restart}
+          setRestart={setRestart}
         />
       </div>
       <p id="game-over">
