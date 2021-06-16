@@ -88,7 +88,6 @@ const Board = ({
 
   //+ on turn or restart update move
   useEffect(() => {
-    //!
     makeCompMove({
       tiles,
       setTiles,
