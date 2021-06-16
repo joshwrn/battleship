@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/battleship/static/css/main.a1f57055.chunk.css",
-    "main.js": "/battleship/static/js/main.f3786ab7.chunk.js",
-    "main.js.map": "/battleship/static/js/main.f3786ab7.chunk.js.map",
+    "main.js": "/battleship/static/js/main.7360e6bc.chunk.js",
+    "main.js.map": "/battleship/static/js/main.7360e6bc.chunk.js.map",
     "runtime-main.js": "/battleship/static/js/runtime-main.96bac387.js",
     "runtime-main.js.map": "/battleship/static/js/runtime-main.96bac387.js.map",
     "static/js/2.71370f12.chunk.js": "/battleship/static/js/2.71370f12.chunk.js",
@@ -10,13 +10,13 @@
     "index.html": "/battleship/index.html",
     "static/css/main.a1f57055.chunk.css.map": "/battleship/static/css/main.a1f57055.chunk.css.map",
     "static/js/2.71370f12.chunk.js.LICENSE.txt": "/battleship/static/js/2.71370f12.chunk.js.LICENSE.txt",
-    "static/js/main.f3786ab7.chunk.js.LICENSE.txt": "/battleship/static/js/main.f3786ab7.chunk.js.LICENSE.txt",
+    "static/js/main.7360e6bc.chunk.js.LICENSE.txt": "/battleship/static/js/main.7360e6bc.chunk.js.LICENSE.txt",
     "static/media/App.css": "/battleship/static/media/Inconsolata.d436e6cb.ttf"
   },
   "entrypoints": [
     "static/js/runtime-main.96bac387.js",
     "static/js/2.71370f12.chunk.js",
     "static/css/main.a1f57055.chunk.css",
-    "static/js/main.f3786ab7.chunk.js"
+    "static/js/main.7360e6bc.chunk.js"
   ]
 }
