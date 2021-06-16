@@ -3,21 +3,8 @@ import randomNum from './randomNum';
 import randomNumRange from './randomNumRange';
 
 //+ make random move
-const randomMove = (...args) => {
-  const [
-    tiles,
-    setTiles,
-    updateHits,
-    player,
-    turn,
-    rotate,
-    setRotate,
-    lastHit,
-    setLastHit,
-    firstHit,
-    setFirstHit,
-    setRestart,
-  ] = [...args];
+const randomMove = ({ ...args }) => {
+  const { tiles, setTiles, updateHits, setLastHit, setFirstHit } = { ...args };
   console.log('random move');
   const random = randomNum(99);
   if (tiles[random].hit === false) {
@@ -31,7 +18,7 @@ const randomMove = (...args) => {
     }
   } else {
     //!
-    makeCompMove(...args);
+    makeCompMove({ ...args });
   }
 };
 
@@ -58,8 +45,8 @@ const doubleCheckRelative = (arr, curHit, tiles) => {
 };
 
 //+ execute the predicted move
-const makePredictedMove = (prediction, getPos, ...args) => {
-  const [tiles, setTiles, updateHits, setRotate, setLastHit] = [...args];
+const makePredictedMove = ({ ...args }, prediction, getPos) => {
+  const { tiles, setTiles, updateHits, setRotate, setLastHit } = { ...args };
   console.log('make predicted move');
   setTiles((old) => [...old], {
     [tiles[prediction]]: (tiles[prediction].hit = true),
@@ -77,16 +64,16 @@ const makePredictedMove = (prediction, getPos, ...args) => {
 };
 
 //+ make moves if prediction is a valid tile
-const makeMove = (prediction, getPos, newArr, ...args) => {
-  const [tiles, turn, setRotate, lastHit, setLastHit, firstHit, setRestart] = [
-    ...args,
-  ];
+const makeMove = ({ ...args }, prediction, getPos, newArr) => {
+  const { tiles, turn, setRotate, lastHit, setLastHit, firstHit, setRestart } =
+    { ...args };
+
   if (tiles[prediction].hit === false) {
-    makePredictedMove(prediction, getPos);
+    makePredictedMove({ ...args }, prediction, getPos);
   } else if (checkRelative(newArr, lastHit, tiles) === false) {
     console.log('make move if available tiles after lastHit');
     //!
-    makeCompMove(...args);
+    makeCompMove({ ...args });
   } else if (checkRelative(newArr, firstHit, tiles) === false) {
     // check first hit
     console.log('go back to first hit and predict');
@@ -105,8 +92,8 @@ const makeMove = (prediction, getPos, newArr, ...args) => {
 };
 
 //+ make predicted move
-const predictMove = (...args) => {
-  const [
+const predictMove = ({ ...args }) => {
+  const {
     tiles,
     turn,
     lastHit,
@@ -115,14 +102,14 @@ const predictMove = (...args) => {
     setLastHit,
     firstHit,
     setRestart,
-  ] = [...args];
+  } = { ...args };
   let pos = [-1, 1, -10, 10];
   const getPos = pos[randomNumRange(rotate[0], rotate[1])];
   const prediction = lastHit + getPos;
   const newArr = pos.slice(rotate[0], rotate[1] + 1);
 
   if (checkPrediction(prediction) === false) {
-    makeMove(prediction, getPos, newArr);
+    makeMove({ ...args }, prediction, getPos, newArr);
   } else if (checkRelative(newArr, lastHit, tiles) === true) {
     console.log('all tiles invalid reset');
     setRotate([0, 3]);
@@ -131,58 +118,19 @@ const predictMove = (...args) => {
   } else {
     console.log('restart make comp move');
     //!
-    makeCompMove(...args);
+    makeCompMove({ ...args });
   }
 };
 
 //# make comp move
-const makeCompMove = (...args) => {
-  const [
-    tiles,
-    setTiles,
-    updateHits,
-    player,
-    turn,
-    rotate,
-    setRotate,
-    lastHit,
-    setLastHit,
-    firstHit,
-    setFirstHit,
-    setRestart,
-  ] = [...args];
+const makeCompMove = ({ ...args }) => {
   console.log('make comp move');
+  const { player, turn, lastHit } = { ...args };
   if (player === 'user' && turn > 0) {
     if (lastHit === -100) {
-      randomMove(
-        tiles,
-        setTiles,
-        updateHits,
-        player,
-        turn,
-        rotate,
-        setRotate,
-        lastHit,
-        setLastHit,
-        firstHit,
-        setFirstHit,
-        setRestart
-      );
+      randomMove({ ...args });
     } else {
-      predictMove(
-        tiles,
-        setTiles,
-        updateHits,
-        player,
-        turn,
-        rotate,
-        setRotate,
-        lastHit,
-        setLastHit,
-        firstHit,
-        setFirstHit,
-        setRestart
-      );
+      predictMove({ ...args });
     }
   }
 };
