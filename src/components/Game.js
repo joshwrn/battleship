@@ -11,7 +11,7 @@ const Game = () => {
       <p id="game-over">React Battleship</p>
       <div id="game">
         <Board
-          player={'user'}
+          player="user"
           gameStatus={gameStatus}
           setGameStatus={setGameStatus}
           turn={turn}
@@ -20,7 +20,7 @@ const Game = () => {
           setRestart={setRestart}
         />
         <Board
-          player={'comp'}
+          player="comp"
           gameStatus={gameStatus}
           setGameStatus={setGameStatus}
           turn={turn}
