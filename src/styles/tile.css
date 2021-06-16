@@ -4,6 +4,12 @@
   height: 3em;
   border: 1px solid white;
   z-index: 5;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+
+.tile:hover {
+  background-color: rgb(54, 54, 54);
 }
 
 .hit {
@@ -11,6 +17,7 @@
   height: 3em;
   border: 1px solid white;
   background-color: rgb(255, 47, 47);
+  transition: 0.5s;
 }
 
 .miss {
@@ -18,6 +25,7 @@
   height: 3em;
   border: 1px solid white;
   background-color: rgb(121, 121, 121);
+  transition: 0.5s;
 }
 
 .ship {
@@ -25,39 +33,4 @@
   height: 3em;
   border: 1px solid rgb(0, 0, 0);
   background-color: rgb(255, 255, 255);
-}
-
-.carrier {
-  width: 3em;
-  height: 3em;
-  border: 1px solid white;
-  background-color: rgb(131, 199, 255);
-}
-
-.battleship {
-  width: 3em;
-  height: 3em;
-  border: 1px solid white;
-  background-color: rgb(255, 122, 215);
-}
-
-.cruiser {
-  width: 3em;
-  height: 3em;
-  border: 1px solid white;
-  background-color: rgb(206, 133, 255);
-}
-
-.submarine {
-  width: 3em;
-  height: 3em;
-  border: 1px solid white;
-  background-color: rgb(255, 191, 119);
-}
-
-.destroyer {
-  width: 3em;
-  height: 3em;
-  border: 1px solid white;
-  background-color: rgb(110, 255, 170);
 }

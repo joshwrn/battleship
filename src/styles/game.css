@@ -17,5 +17,20 @@
 }
 
 #game-over {
-  font-size: 2em;
+  font-size: 1.25em;
+}
+
+#reset-button {
+  justify-self: center;
+  margin: 1em;
+  background-color: black;
+  border: 1px solid white;
+  padding: 0.5em 2em;
+  color: white;
+  transition: background-color 0.35s;
+}
+
+#reset-button:hover {
+  background-color: white;
+  color: black;
 }

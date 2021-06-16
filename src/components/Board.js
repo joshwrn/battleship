@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Tile from './Tile';
 import '../styles/board.css';
-import randomNum from './functions/randomNum';
-import randomNumRange from './functions/randomNumRange';
-import checkPrediction from './functions/checkPrediction';
 import makeCompMove from './functions/botLogic';
 import shipList from './functions/shipList';
 import { createAllShips } from './functions/createAllShips.js';
@@ -16,6 +13,7 @@ const Board = ({
   setTurn,
   restart,
   setRestart,
+  resetGame,
 }) => {
   const [tiles, setTiles] = useState([]);
   const [lastHit, setLastHit] = useState(-100);
@@ -23,7 +21,7 @@ const Board = ({
   const [rotate, setRotate] = useState([0, 3]);
   const [sunk, setSunk] = useState([]);
   const [ships, setShips] = useState(shipList(player));
-  const newTiles = [];
+  let newTiles = [];
 
   //+ create tiles
   const createTiles = () => {
@@ -128,6 +126,22 @@ const Board = ({
   useEffect(() => {
     addToSunk();
   }, [ships]);
+
+  //+ reset the game
+  useEffect(() => {
+    newTiles = [];
+    createTiles();
+    setLastHit(-100);
+    setFirstHit('');
+    setRotate([0, 3]);
+    setSunk([]);
+    setRestart('');
+    setTurn(0);
+    setGameStatus('playing');
+    setShips(shipList(player));
+    createAllShips(newTiles, ships);
+    setTiles(newTiles);
+  }, [resetGame]);
 
   return (
     <div>
